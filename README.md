@@ -1,12 +1,9 @@
-## Quick Arr Stack
+## arch-arr
 
-TV shows and movies download, sorted, with the desired quality and subtitles, behind a VPN (optional), ready to watch, in a beautiful media player.
-All automated.
+TV shows and movies downloaded with the desired quality and subtitles, behind a VPN (optional), organized and ready to watch in a beautiful media player.
+All automated and running on Arch Linux.
 
-On top of the original configurations added information related to the PureVPN configurations and added a wireguard docker to access the content of the media center outside the home network without the need to open the Plex port.
-
-
-_Disclaimer: I'm not encouraging/supporting piracy, this is for information only._
+Further, there are additional configuration infos related to openvpn and setting up wireguard for remote access of your media center without the need to open the Plex port.
 
 ## Table of Contents
 
@@ -16,6 +13,8 @@ _Disclaimer: I'm not encouraging/supporting piracy, this is for information only
   - [Hardware configuration](#hardware-configuration)
   - [Software stack](#software-stack)
   - [Installation guide](#installation-guide)
+    - [Install Arch Linux](#install-arch-linux)
+    - [Install awesomeWM](#install-awesomewm-optional)
     - [Install docker and docker-compose](#install-docker-and-docker-compose)
     - [Helpfull Docker Commands](#helpfull-docker-commands)
     - [Clone the repository](#clone-the-repository)
@@ -100,6 +99,72 @@ Keep in mind that all the movies and shows are downloaded to your computer, so a
 ![Architecture Diagram](img/architecture_diagram.png)
 
 ## Installation guide
+
+### Install Arch Linux
+
+Download the [ISO](https://archlinux.org/download/) from a suitable mirror like [mirror.puzzle.ch](https://mirror.puzzle.ch/archlinux/iso/), then flash it on a thumbdrive using [etcher](https://etcher.balena.io/) or something similar.
+
+Install Arch by following the [official instructions](https://wiki.archlinux.org/title/Installation_guide).
+
+Quick rundown of commands if this is not your first time installing Arch:
+```sh
+localectl list-keymaps
+loadkeys de_CH-latin1
+
+cat /sys/firmware/efi/fw_platform_size #verify boot mode (must return 64)
+ip link #verify uplink
+timedatectl set-timezone Europe/Zurich
+
+fdisk /dev/sda #Add three partitions: EFI [1GB] / Swap [~RAM size] / Root [rest of space]
+mkfs.fat -F 32 /dev/sda1 #init EFI partition
+mkswap /dev/sda2 #init swap partition
+mkfs.ext4 /dev/sda3 #init root partition
+
+mount /dev/sda3 /mnt
+mount --mkdir /dev/sda1 /mnt/boot/efi
+swapon /dev/sda2 #enable swap
+
+pacstrap -K /mnt base linux linux-firmware nano #install base packages
+genfstab -U /mnt >> /mnt/etc/fstab #generate fstab
+arch-chroot /mnt #switch into new system
+
+ln -sf /usr/share/zoneinfo/Region/City /etc/localtime #set timezone
+hwclock --systohc
+nano /etc/locale.conf # add: LANG=de_CH.UTF-8
+nano /etc/vconsole.conf #add: KEYMAP=de_CH-latin1
+
+pacman -S grub efibootmgr openssh linux-headers #install boot manager etc
+grub-install --target=x86_64-efi --bootloader-id=grub_uefi --recheck
+grub-mkconfig -o /boot/grub/grub.cfg #write grub-config
+
+nano /etc/systemd/network/20-wired.network #Write network config:
+[Match]
+Name=enp46s0
+
+[Network]
+Address=192.168.1.20/24
+Gateway=192.168.1.1
+DNS=1.1.1.1
+DNS=1.0.0.1
+---
+
+systemctl start systemd-resolved.service #start dns service
+systemctl enable systemd-resolved #enable dns service
+systemctl start systemd-networkd.service #start network service
+systemctl enable systemd-networkd #enable network service
+ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf #symlink
+
+exit & umount -a & reboot
+```
+
+### Install awesomeWM (optional)
+
+```sh
+pacman -S ttf-font fontconfig #install basic fonts
+pacman -S xorg-server xorg-xinit xterm awesome
+echo “exec awesome” > ~/.xinitrc #auto init awesome
+startx
+```
 
 ### Install docker and docker-compose
 
