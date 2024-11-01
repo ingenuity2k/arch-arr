@@ -1,4 +1,5 @@
 ## arch-arr
+![arch-arr logo](./logo.png)
 
 TV shows and movies downloaded with the desired quality and subtitles, behind a VPN (optional), organized and ready to watch in a beautiful media player.
 All automated and running on Arch Linux.
@@ -7,7 +8,7 @@ Further, there are additional configuration infos related to openvpn and setting
 
 ## Table of Contents
 
-- [Quick Arr Stack](#quick-arr-stack)
+- [arch-arr](#arch-arr)
   - [Table of Contents](#table-of-contents)
   - [Overview](#overview)
   - [Hardware configuration](#hardware-configuration)
@@ -90,9 +91,11 @@ This is composed of multiple tools working together to have an automated way to 
 
 ## Hardware configuration
 
-You can use an old Laptop with Debian, Raspberry Pi, a Synology NAS, or a Windows or Mac computer. The stack should work fine on all these systems, but you must adapt the Docker stack below to your OS. I'll only focus on a standard Linux installation here.
+You can use pretty much any hardware, as long as it's of x86_64 architecture, so no ARM or similar platforms. Personally, I'd recommend a NUC device, mainly due to compact form factor, low power draw and overall reduced hardware setup complexity.
 
-Keep in mind that all the movies and shows are downloaded to your computer, so a Hard Drive with high capacity is recommended.
+The software stack can run on top of various OS, but this guide is using Arch Linux as the underlying platform.
+
+Keep in mind that all the movies and shows are downloaded to your server, so a Hard Drive with high capacity is recommended.
 
 ## Software stack
 
